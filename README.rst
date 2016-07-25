@@ -33,15 +33,18 @@ Parsel Command Line Interface
 * Documentation: https://parsel-cli.readthedocs.org.
 * Python versions: 2.7, 3.4+
 
-Features
---------
-
-FIXME
-
 Quickstart
 ----------
 
-FIXME
+Example::
+
+    $ curl http://scrapy.org/ | parsel-cli '.container a::attr(href)' | tail -2
+    http://doc.scrapy.org/en/latest/topics/ubuntu.html
+    https://github.com/scrapy/scrapy/archive/1.1.zip
+
+
+See ``parsel-cli -h`` for more options.
+
 
 Credits
 -------

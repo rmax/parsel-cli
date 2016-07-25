@@ -37,6 +37,9 @@ setup(
     url='https://github.com/rolando/parsel-cli',
     packages=list(find_packages('src')),
     package_dir={'': 'src'},
+    entry_points={'console_scripts': [
+        'parsel-cli = parsel_cli.cli:main',
+    ]},
     setup_requires=read_requirements('requirements-setup.txt'),
     install_requires=read_requirements('requirements-install.txt'),
     include_package_data=True,
