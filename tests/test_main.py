@@ -1,5 +1,6 @@
 import contextlib
 import io
+import os
 import re
 import subprocess
 import sys
@@ -57,6 +58,26 @@ class MainTestCase(unittest.TestCase):
         stdout.seek(0)
         self.assertEqual(stdout.read(), u'foo\n')
 
+    def test_make_links_absolute_requires_base_url(self):
+        argv = ['--absolute-links', 'a']
+        with capture(stdin=io.BytesIO(HTML), redir_stderr=True) as stdout:
+            # FIXME: Avoid to catch SystemError for arguments errors.
+            try:
+                main(argv)
+            except SystemExit:
+                pass
+
+        stdout.seek(0)
+        self.assertIn('--base-url is required', stdout.read())
+
+    def test_make_links_absolute_with_base_url(self):
+        argv = ['--absolute-links', '--base-url', '/base/', 'a::attr(href)']
+        with capture(stdin=io.BytesIO(HTML)) as stdout:
+            main(argv)
+
+        stdout.seek(0)
+        self.assertEqual(stdout.read(), u'/base/foo\n')
+
     def test_default_arguments_from_file(self, prefix=''):
         argv = ['a::attr(href)']
         with tempfile.NamedTemporaryFile(delete=True) as fp:
@@ -68,6 +89,18 @@ class MainTestCase(unittest.TestCase):
 
             stdout.seek(0)
             self.assertEqual(stdout.read(), u'foo\n')
+
+    def test_make_links_absolute_from_arg(self):
+        argv = ['--absolute-links', 'a::attr(href)']
+        with tempfile.NamedTemporaryFile(delete=True) as fp:
+            fp.write(HTML)
+            fp.flush()
+            argv.append(fp.name)
+            with capture() as stdout:
+                main(argv)
+
+            stdout.seek(0)
+            self.assertEqual(stdout.read(), u'%s/foo\n' % os.path.dirname(fp.name))
 
     def test_default_arguments_from_file_with_scheme(self):
         self.test_default_arguments_from_file('file://')

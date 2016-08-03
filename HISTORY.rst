@@ -7,6 +7,7 @@ History
 0.1.1-dev (unreleased)
 ----------------------
 
+* Added --absolute-links argument.
 * Allow URLs as file argument.
 * Added --version argument.
 

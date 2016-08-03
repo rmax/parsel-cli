@@ -11,7 +11,10 @@ import six
 from parsel import Selector, __version__ as parsel_version
 
 from . import __version__
-from .utils import open_url
+from .utils import open_url, fix_parsel_parser
+
+
+PARSER_TYPE = fix_parsel_parser()
 
 
 def main(argv=None, progname=None):
@@ -20,6 +23,9 @@ def main(argv=None, progname=None):
                         help="A CSS expression, or a XPath expression if --xpath is given.")
     parser.add_argument('file', metavar='FILE_OR_URL', nargs='?',
                         help="If missing, it reads the HTML content from the standard input.")
+    parser.add_argument('--base-url', help="Base URL for links. Default: input URL")
+    parser.add_argument('--absolute-links', action='store_true',
+                        help="Make links absolute.")
     parser.add_argument('--xpath', action='store_true',
                         help="Given expression is a XPath expression.")
     parser.add_argument('--re', metavar='PATTERN',
@@ -47,7 +53,13 @@ def main(argv=None, progname=None):
         except UnicodeDecodeError:
             parser.error("Failed to decode input using encoding: %s" % args.encoding)
 
-    sel = Selector(text=text)
+    sel = Selector(text=text, type=PARSER_TYPE)
+
+    base_url = args.base_url or args.file
+    if args.absolute_links:
+        if not base_url:
+            parser.error("--base-url is required")
+        sel.root.make_links_absolute(base_url)
 
     if args.xpath:
         result = sel.xpath(args.expr)
