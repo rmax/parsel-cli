@@ -4,8 +4,8 @@ History
 
 .. comment:: bumpversion marker
 
-0.1.1-dev (unreleased)
-----------------------
+0.1.1 (2016-08-03)
+------------------
 
 * Added --absolute-links argument.
 * Allow URLs as file argument.

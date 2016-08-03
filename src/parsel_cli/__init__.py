@@ -2,4 +2,4 @@
 
 __author__ = 'Rolando Espinoza'
 __email__ = 'rolando at rmax.io'
-__version__ = '0.1.1-dev'
+__version__ = '0.1.1'
