@@ -8,7 +8,9 @@ import sys
 
 import six
 
-from parsel import Selector
+from parsel import Selector, __version__ as parsel_version
+
+from . import __version__
 
 
 def main(argv=None, progname=None):
@@ -25,7 +27,8 @@ def main(argv=None, progname=None):
                         help="Input encoding. Default: utf-8.")
     parser.add_argument('--repr', action='store_true',
                         help="Output result object representation instead of as text.")
-    # TODO: Output this and parsel version.
+    parser.add_argument('--version', action='version',
+                        version='parsel-cli %s, parsel %s' % (__version__, parsel_version))
 
     args = parser.parse_args(argv)
 

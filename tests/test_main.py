@@ -1,12 +1,15 @@
 import contextlib
 import io
+import re
+import subprocess
 import sys
 import tempfile
 import unittest
 
 import six
 
-from parsel_cli.__main__ import main
+from parsel_cli import __version__
+from parsel_cli.cli import main
 
 
 HTML = u"""
@@ -67,3 +70,11 @@ class MainTestCase(unittest.TestCase):
 
         stdout.seek(0)
         self.assertEqual(eval(stdout.read()), ['foo', 'bar'])
+
+
+def test_command():
+    output = subprocess.check_output(['parsel-cli', '--version'],
+                                     stderr=subprocess.STDOUT)
+    if isinstance(output, six.binary_type):
+        output = output.decode('utf-8')
+    assert re.search(r'\b%s\b' % __version__, output) is not None
