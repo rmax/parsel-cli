@@ -11,13 +11,14 @@ import six
 from parsel import Selector, __version__ as parsel_version
 
 from . import __version__
+from .utils import open_url
 
 
 def main(argv=None, progname=None):
     parser = argparse.ArgumentParser(prog=progname, description=__doc__)
     parser.add_argument('expr', metavar='EXPRESSION',
-                        help="A CSSexpression, or a XPath expression if --xpath is given.")
-    parser.add_argument('file', metavar='FILE', nargs='?',
+                        help="A CSS expression, or a XPath expression if --xpath is given.")
+    parser.add_argument('file', metavar='FILE_OR_URL', nargs='?',
                         help="If missing, it reads the HTML content from the standard input.")
     parser.add_argument('--xpath', action='store_true',
                         help="Given expression is a XPath expression.")
@@ -33,7 +34,10 @@ def main(argv=None, progname=None):
     args = parser.parse_args(argv)
 
     if args.file:
-        text = open(args.file).read()
+        try:
+            text = open_url(args.file).read()
+        except ValueError as e:
+            parser.error(str(e))
     else:
         text = sys.stdin.read()
 

@@ -18,22 +18,36 @@ HTML = u"""
 
 
 @contextlib.contextmanager
-def capture(stdin=None, encoding='utf-8'):
-    orig_stdin, orig_stdout = sys.stdin, sys.stdout
+def capture(stdin=None, encoding='utf-8', redir_stderr=False):
+    orig_stdin, orig_stdout, orig_stderr = sys.stdin, sys.stdout, sys.stderr
     if six.PY2:
         sys.stdin = stdin or six.StringIO()
         sys.stdout = six.StringIO()
     else:
         sys.stdin = io.TextIOWrapper(stdin or io.BytesIO(), encoding=encoding)
         sys.stdout = io.TextIOWrapper(io.BytesIO(), encoding=encoding)
+    if redir_stderr:
+        sys.stderr = sys.stdout
     try:
         yield sys.stdout
     finally:
         sys.stdin = orig_stdin
         sys.stdout = orig_stdout
+        sys.stderr = orig_stderr
 
 
 class MainTestCase(unittest.TestCase):
+
+    def test_invalid_scheme(self):
+        argv = ['a', 'unknown://test']
+        with capture(redir_stderr=True) as stdout:
+            try:
+                main(argv)
+            except SystemExit:
+                pass
+
+        stdout.seek(0)
+        assert 'scheme: unknown' in stdout.read()
 
     def test_default_arguments(self):
         argv = ['a::attr(href)']
@@ -43,17 +57,20 @@ class MainTestCase(unittest.TestCase):
         stdout.seek(0)
         self.assertEqual(stdout.read(), u'foo\n')
 
-    def test_default_arguments_from_file(self):
+    def test_default_arguments_from_file(self, prefix=''):
         argv = ['a::attr(href)']
         with tempfile.NamedTemporaryFile(delete=True) as fp:
             fp.write(HTML)
             fp.flush()
-            argv.append(fp.name)
+            argv.append(prefix + fp.name)
             with capture() as stdout:
                 main(argv)
 
             stdout.seek(0)
             self.assertEqual(stdout.read(), u'foo\n')
+
+    def test_default_arguments_from_file_with_scheme(self):
+        self.test_default_arguments_from_file('file://')
 
     def test_with_all_arguments(self):
         argv = [
