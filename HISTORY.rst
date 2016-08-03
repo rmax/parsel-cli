@@ -4,6 +4,11 @@ History
 
 .. comment:: bumpversion marker
 
+0.2.0 (2016-08-03)
+------------------
+
+* Promoted version bump.
+
 0.1.1 (2016-08-03)
 ------------------
 
